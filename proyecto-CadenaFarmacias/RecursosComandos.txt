@@ -1,0 +1,22 @@
+controllers
+models.entities
+repositories
+services
+exceptions
+
+docker network create red_cadena_farmacia
+
+docker run -d --name mysql-CadenaFarmacia --network  red_cadena_farmacia -p 3307:3306 -e MYSQL_ROOT_PASSWORD=abcd -e MYSQL_DATABASE=catalog_inventory_db mysql:8
+
+ docker build -t catalog-inventory-service .
+ docker build -t sales-customers-service .
+ docker build -t reports-service .
+
+
+
+docker run -d --name catalog-inventory-service --network red_cadena_farmacia -p 8081:8081 catalog-inventory-service
+
+docker run -d --name sales-customers-service --network red_cadena_farmacia -p 8082:8082 sales-customers-service
+
+docker run -d --name reports-service --network red_cadena_farmacia -p 8083:8083 reports-service
+

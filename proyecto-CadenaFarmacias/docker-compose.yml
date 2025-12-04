@@ -1,0 +1,64 @@
+version: "3.9"
+
+services:
+
+  CadenaFarmacia:
+    image: mysql:8
+    container_name: CadenaFarmacia
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+    volumes:
+      - ./db-init:/docker-entrypoint-initdb.d
+    ports:
+      - "3306:3306"
+    networks:
+      - farmacia_net
+
+  catalog-inventory-service:
+    build: ./catalog-inventory-service
+    container_name: catalog-inventory-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://CadenaFarmacia:3306/catalog_inventory_db
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root123
+    ports:
+      - "8081:8081"
+    depends_on:
+      - CadenaFarmacia
+    networks:
+      - farmacia_net
+
+  sales-customers-service:
+    build: ./sales-customers-service
+    container_name: sales-customers-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://CadenaFarmacia:3306/sales_customers_db
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root123
+      CATALOG_API_URL: http://catalog-inventory-service:8081
+    ports:
+      - "8082:8082"
+    depends_on:
+      - CadenaFarmacia
+      - catalog-inventory-service
+    networks:
+      - farmacia_net
+
+  reports-service:
+    build: ./reports-service
+    container_name: reports-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://CadenaFarmacia:3306/reports_db
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root123
+      SALES_API_URL: http://sales-customers-service:8082
+    ports:
+      - "8083:8083"
+    depends_on:
+      - CadenaFarmacia
+      - sales-customers-service
+    networks:
+      - farmacia_net
+
+networks:
+  farmacia_net:

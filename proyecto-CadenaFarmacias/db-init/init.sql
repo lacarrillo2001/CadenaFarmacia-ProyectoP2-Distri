@@ -1,0 +1,3 @@
+CREATE DATABASE IF NOT EXISTS catalog_inventory_db;
+CREATE DATABASE IF NOT EXISTS sales_customers_db;
+CREATE DATABASE IF NOT EXISTS reports_db;
