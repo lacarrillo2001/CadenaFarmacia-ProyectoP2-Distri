@@ -2,63 +2,63 @@ version: "3.9"
 
 services:
 
-  CadenaFarmacia:
+  mysql-CadenaFarmacia:
     image: mysql:8
-    container_name: CadenaFarmacia
+    container_name: mysql-CadenaFarmacia
     environment:
-      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_ROOT_PASSWORD: abcd
+    ports:
+      - "3307:3306"
     volumes:
       - ./db-init:/docker-entrypoint-initdb.d
-    ports:
-      - "3306:3306"
     networks:
-      - farmacia_net
+      - red_cadena_farmacia
 
   catalog-inventory-service:
     build: ./catalog-inventory-service
     container_name: catalog-inventory-service
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://CadenaFarmacia:3306/catalog_inventory_db
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-CadenaFarmacia:3306/catalog_inventory_db
       SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root123
+      SPRING_DATASOURCE_PASSWORD: abcd
     ports:
       - "8081:8081"
     depends_on:
-      - CadenaFarmacia
+      - mysql-CadenaFarmacia
     networks:
-      - farmacia_net
+      - red_cadena_farmacia
 
   sales-customers-service:
     build: ./sales-customers-service
     container_name: sales-customers-service
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://CadenaFarmacia:3306/sales_customers_db
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-CadenaFarmacia:3306/sales_customers_db
       SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root123
+      SPRING_DATASOURCE_PASSWORD: abcd
       CATALOG_API_URL: http://catalog-inventory-service:8081
     ports:
       - "8082:8082"
     depends_on:
-      - CadenaFarmacia
       - catalog-inventory-service
+      - mysql-CadenaFarmacia
     networks:
-      - farmacia_net
+      - red_cadena_farmacia
 
   reports-service:
     build: ./reports-service
     container_name: reports-service
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://CadenaFarmacia:3306/reports_db
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-CadenaFarmacia:3306/reports_db
       SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root123
+      SPRING_DATASOURCE_PASSWORD: abcd
       SALES_API_URL: http://sales-customers-service:8082
     ports:
       - "8083:8083"
     depends_on:
-      - CadenaFarmacia
       - sales-customers-service
+      - mysql-CadenaFarmacia
     networks:
-      - farmacia_net
+      - red_cadena_farmacia
 
 networks:
-  farmacia_net:
+  red_cadena_farmacia:

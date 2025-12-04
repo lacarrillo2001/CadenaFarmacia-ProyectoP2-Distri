@@ -20,3 +20,5 @@ docker run -d --name sales-customers-service --network red_cadena_farmacia -p 80
 
 docker run -d --name reports-service --network red_cadena_farmacia -p 8083:8083 reports-service
 
+
+
